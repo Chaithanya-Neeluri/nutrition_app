@@ -5,8 +5,8 @@ import 'package:nutrition_app/provider/advanced_user_details_provider.dart';
 
 class AdvancedUserDetailsScreen extends ConsumerWidget {
   final List<String> activityLevels = ["Sedentary", "Lightly", "Active", "Very"];
-  final List<String> conditions = ["Diabetes", "Hypertension", "Thyroid", "Healthy"];
-  final List<String> cuisines = ["South Indian", "North Indian", "East Indian", "West Indian"];
+  final List<String> conditions = ["Diabetes", "Hypertension", "Thyroid", "Healthy"," Heart Disease","Kidney Disease","PCOD/PCOS"];
+  final List<String> cuisines = ["indian", "north indian", "south indian", "continental","chinese","mediterranean"];
   final TextEditingController dislikeController = TextEditingController();
   final List<String> nutrients = ["Iron", "Fiber", "Protein", "Calcium"];
 

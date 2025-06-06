@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:nutrition_app/screens/delivery_person_dashboard.dart';
 import 'package:nutrition_app/screens/nutricarrier/dashboard.dart';
 import 'package:nutrition_app/screens/nutrichef/dashboard.dart';
+import 'package:nutrition_app/screens/nutrimate/dashboard.dart';
 
 import 'package:nutrition_app/screens/role_based_landing.dart';
 import 'package:nutrition_app/screens/user_details.dart';
@@ -40,7 +41,7 @@ class AuthChecker extends StatelessWidget {
 
            return UserDetailsScreen();
       }
-        return const DashboardScreen();
+        return HomeScreen();
       case 'NutriChef':
         return const  NutriChefDashboardScreen(); 
       case 'NutriCarrier':

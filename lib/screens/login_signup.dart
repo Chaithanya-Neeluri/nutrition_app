@@ -277,7 +277,7 @@ String getLoadingMessage(String role) {
       extendBodyBehindAppBar: true,
       // backgroundColor: const Color(0xFFFFF8E1),
     appBar: AppBar(
-   title: const Text('Embody'),
+   title: const Text('NutriNudge'),
     backgroundColor: isDarkMode
       ? null // Use default dark theme color
       : primaryColor.withAlpha(120),

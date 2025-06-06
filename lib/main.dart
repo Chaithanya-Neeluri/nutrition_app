@@ -4,6 +4,7 @@ import 'package:nutrition_app/firebase_options.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nutrition_app/screens/loading.dart';
 import 'package:nutrition_app/screens/nutrichef/dashboard.dart';
+import 'package:nutrition_app/screens/nutrimate/dashboard.dart';
 import 'package:nutrition_app/widgets/auth_checker.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -165,7 +166,8 @@ class MyApp extends StatelessWidget {
       theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: ThemeMode.system,
-     home: AuthChecker(),
+     home: 
+     AuthChecker(),
      debugShowCheckedModeBanner: false,
      );
   }

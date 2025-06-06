@@ -71,7 +71,7 @@ class RoleBasedLandingScreen extends StatelessWidget {
                 children: [
                   const Spacer(),
                   Text(
-                    "Welcome to NutriMate 🍽️",
+                    "Welcome to NutriNudge 🍽️",
                     textAlign: TextAlign.center,
                     style:Theme.of(context).textTheme.displayMedium,
                     // style: GoogleFonts.poppins(

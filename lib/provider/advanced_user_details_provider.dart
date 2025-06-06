@@ -65,7 +65,13 @@ class AdvancedUserDetailsNotifier extends StateNotifier<AdvancedUserDetails> {
     final updated = [...state.dislikedFoods, food];
     state = state.copyWith(dislikedFoods: updated);
   }
+   
 
+   
+  void reset() {
+   state = AdvancedUserDetails(); // resets to default values
+
+  }
   void removeDislikedFood(String food) {
     final updated = [...state.dislikedFoods]..remove(food);
     state = state.copyWith(dislikedFoods: updated);
