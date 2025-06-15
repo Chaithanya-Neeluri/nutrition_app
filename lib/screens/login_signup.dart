@@ -536,6 +536,10 @@ class _LoginSignupState extends State<LoginSignup> {
                                 onPressed: () {
                                   setState(() {
                                     _isLogin = !_isLogin;
+                                    _enteredEmail = '';
+                                    _enteredPassword = '';
+                                    _enteredUserName = '';
+                                    _formKey.currentState?.reset();
                                   });
                                 },
                                 child: Text(
