@@ -1,17 +1,14 @@
 import 'package:firebase_core/firebase_core.dart';
+
 import 'package:flutter/material.dart';
 import 'package:nutrition_app/firebase_options.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nutrition_app/screens/loading.dart';
 import 'package:nutrition_app/screens/nutrichef/dashboard.dart';
-import 'package:nutrition_app/screens/nutrimate/dashboard.dart';
 import 'package:nutrition_app/widgets/auth_checker.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-
-
-
 
 final Color seedColor = const Color.fromARGB(255, 166, 242, 79);
 
@@ -87,7 +84,6 @@ final ThemeData darkTheme = ThemeData(
   scaffoldBackgroundColor: scaffoldBgColor,
   appBarTheme: AppBarTheme(
     backgroundColor: surfaceColor,
-   
     elevation: 3,
     titleTextStyle: GoogleFonts.montserrat(
       fontSize: 28,
@@ -112,9 +108,9 @@ final ThemeData darkTheme = ThemeData(
       color: Colors.brown,
     ),
     headlineSmall: GoogleFonts.poppins(
-       fontSize: 16,
-       fontWeight:FontWeight.normal,
-       color:Colors.white,
+      fontSize: 16,
+      fontWeight: FontWeight.normal,
+      color: Colors.white,
     ),
     titleMedium: GoogleFonts.poppins(
       fontSize: 20,
@@ -139,20 +135,16 @@ final ThemeData darkTheme = ThemeData(
   ),
 );
 
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-
-
-
-
-Future<void> main() async {
- WidgetsFlutterBinding.ensureInitialized();
+  // Initialize Firebase with options
   await Firebase.initializeApp(
-  options: DefaultFirebaseOptions.currentPlatform,
+    options: DefaultFirebaseOptions.currentPlatform,
   );
- runApp(ProviderScope(child: MyApp()
- ) );
-}
 
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -160,16 +152,16 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      navigatorKey: navigatorKey,
-      title: 'NutriNudge',
-      theme: lightTheme,
-      darkTheme: darkTheme,
-      themeMode: ThemeMode.system,
-     home: 
-     AuthChecker(),
-     debugShowCheckedModeBanner: false,
-     );
+    return ProviderScope(
+      child: MaterialApp(
+        navigatorKey: navigatorKey,
+        title: 'NutriNudge',
+        theme: lightTheme,
+        darkTheme: darkTheme,
+        themeMode: ThemeMode.system,
+        home: AuthChecker(),
+        debugShowCheckedModeBanner: false,
+      ),
+    );
   }
 }
-
