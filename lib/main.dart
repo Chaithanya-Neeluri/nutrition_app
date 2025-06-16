@@ -5,6 +5,9 @@ import 'package:nutrition_app/firebase_options.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nutrition_app/screens/loading.dart';
 import 'package:nutrition_app/screens/nutrichef/dashboard.dart';
+import 'package:nutrition_app/screens/admin/document_verification_admin.dart';
+import 'package:nutrition_app/screens/admin/admin_login.dart';
+import 'package:nutrition_app/screens/admin/admin_dashboard.dart';
 import 'package:nutrition_app/widgets/auth_checker.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -161,6 +164,11 @@ class MyApp extends StatelessWidget {
         themeMode: ThemeMode.system,
         home: AuthChecker(),
         debugShowCheckedModeBanner: false,
+        routes: {
+          '/admin/login': (context) => AdminLogin(),
+          '/admin/dashboard': (context) => AdminDashboard(),
+          '/admin/verifications': (context) => DocumentVerificationAdmin(),
+        },
       ),
     );
   }

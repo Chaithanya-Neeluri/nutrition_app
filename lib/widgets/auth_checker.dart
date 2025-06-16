@@ -9,7 +9,8 @@ import 'package:nutrition_app/screens/nutrimate/main_app.dart';
 import 'package:nutrition_app/screens/role_based_landing.dart';
 import 'package:nutrition_app/screens/user_details.dart';
 import 'package:nutrition_app/screens/dashboard.dart';
-
+import 'package:nutrition_app/screens/nutrichef/document_verification.dart';
+import 'package:nutrition_app/screens/nutrichef/verification_pending.dart';
 import 'package:nutrition_app/screens/loading.dart';
 
 class AuthChecker extends StatelessWidget {
@@ -29,6 +30,7 @@ class AuthChecker extends StatelessWidget {
       final data = docSnapshot.data() as Map<String, dynamic>;
       final role = data['role'] as String?;
       final isSubmitted = data['isSubmitted'] as bool? ?? false;
+      final isVerified = data['isVerified'] as bool? ?? false;
 
       if (role == null) {
         return const RoleBasedLandingScreen();
@@ -41,7 +43,13 @@ class AuthChecker extends StatelessWidget {
           }
           return MainNavigation();
         case 'NutriChef':
-          return const NutriChefDashboardScreen();
+          if (!isSubmitted || !isVerified) {
+            if (isSubmitted && !isVerified) {
+              return const VerificationPending();
+            }
+            return const DocumentVerification();
+          }
+          return const NutriChefDashboard();
         case 'NutriCarrier':
           return const NutriCarrierDashboard();
         default:

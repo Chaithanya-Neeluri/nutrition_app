@@ -7,9 +7,12 @@ import 'package:nutrition_app/screens/delivery_person_dashboard.dart';
 import 'package:nutrition_app/screens/loading.dart';
 import 'package:nutrition_app/screens/nutricarrier/dashboard.dart';
 import 'package:nutrition_app/screens/nutrichef/dashboard.dart';
+import 'package:nutrition_app/screens/nutrichef/document_verification.dart';
 import 'package:nutrition_app/screens/restartaurant_dashboard.dart';
 import 'package:nutrition_app/widgets/auth_checker.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 
 final _firebaseAuth = FirebaseAuth.instance;
 
@@ -37,6 +40,9 @@ class _LoginSignupState extends State<LoginSignup> {
 
   String? imagePath = '';
 
+  int _tapCount = 0;
+  DateTime? _lastTapTime;
+
   @override
   void initState() {
     super.initState();
@@ -63,12 +69,52 @@ class _LoginSignupState extends State<LoginSignup> {
     }
   }
 
+  Future<Map<String, dynamic>> _getUserLocation() async {
+    try {
+      // Check location permission
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          return {'city': 'Unknown', 'latitude': 0.0, 'longitude': 0.0};
+        }
+      }
+
+      // Get current position
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      // Get address from coordinates
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
+
+      if (placemarks.isNotEmpty) {
+        Placemark place = placemarks[0];
+        return {
+          'city': place.locality ?? 'Unknown',
+          'latitude': position.latitude,
+          'longitude': position.longitude,
+        };
+      }
+      return {'city': 'Unknown', 'latitude': 0.0, 'longitude': 0.0};
+    } catch (e) {
+      print('Error getting location: $e');
+      return {'city': 'Unknown', 'latitude': 0.0, 'longitude': 0.0};
+    }
+  }
+
   Future<void> authenticateFirebase(BuildContext context) async {
     setState(() {
       _isLoading = true;
     });
 
     try {
+      // Get user location
+      Map<String, dynamic> locationData = await _getUserLocation();
+
       if (!_isLogin && _enteredUserName.trim().isNotEmpty) {
         final _authResponse =
             await _firebaseAuth.createUserWithEmailAndPassword(
@@ -81,21 +127,35 @@ class _LoginSignupState extends State<LoginSignup> {
           'name': _enteredUserName,
           'email': _enteredEmail,
           'role': title,
+          'isSubmitted': false,
+          'isVerified': false,
           'password': _enteredPassword,
           'uid': _authResponse.user!.uid,
+          'city': locationData['city'],
+          'latitude': locationData['latitude'],
+          'longitude': locationData['longitude'],
+          'lastLoginAt': FieldValue.serverTimestamp(),
         });
         Navigator.of(context).pop();
-        // Navigator.pushReplacement(
-        //   context,
-        //   MaterialPageRoute(builder: (_) => AuthChecker()),
-        // );
       } else {
         await FirebaseAuth.instance
             .signInWithEmailAndPassword(
                 email: _enteredEmail, password: _enteredPassword)
-            .then((_) {
-          validateUserRoleAndNavigate(
-              context, widget.role); // Pass the expected role to compare
+            .then((_) async {
+          // Update last login and location for existing users
+          final user = FirebaseAuth.instance.currentUser;
+          if (user != null) {
+            await FirebaseFirestore.instance
+                .collection('users')
+                .doc(user.uid)
+                .update({
+              'lastLoginAt': FieldValue.serverTimestamp(),
+              'city': locationData['city'],
+              'latitude': locationData['latitude'],
+              'longitude': locationData['longitude'],
+            });
+          }
+          validateUserRoleAndNavigate(context, widget.role);
         });
       }
     } catch (e) {
@@ -115,6 +175,10 @@ class _LoginSignupState extends State<LoginSignup> {
         _isLoading = true;
       });
       await GoogleSignIn().signOut();
+
+      // Get user location
+      Map<String, dynamic> locationData = await _getUserLocation();
+
       // Google Sign-In flow
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
 
@@ -149,16 +213,26 @@ class _LoginSignupState extends State<LoginSignup> {
 
         if (!snapshot.exists) {
           print("User does not exist. Writing new user data...");
-          await userDoc.update({
+          await userDoc.set({
             'uid': uid,
             'name': name,
             'email': email,
             'role': expectedRole,
             'isSubmitted': false,
+            'city': locationData['city'],
+            'latitude': locationData['latitude'],
+            'longitude': locationData['longitude'],
+            'lastLoginAt': FieldValue.serverTimestamp(),
           });
           print("Firestore write successful for new user.");
         } else {
-          print("User already exists in Firestore: ${snapshot.data()}");
+          // Update existing user's location and last login
+          await userDoc.update({
+            'lastLoginAt': FieldValue.serverTimestamp(),
+            'city': locationData['city'],
+            'latitude': locationData['latitude'],
+            'longitude': locationData['longitude'],
+          });
         }
 
         // Now validate role
@@ -179,15 +253,10 @@ class _LoginSignupState extends State<LoginSignup> {
           return;
         }
 
-        // Navigate to authenticated screen
         setState(() {
           _isLoading = false;
         });
         Navigator.of(context).pop();
-        // Navigator.pushReplacement(
-        //   context,
-        //   MaterialPageRoute(builder: (_) => AuthChecker()),
-        // );
       }
     } catch (e) {
       setState(() {
@@ -275,13 +344,79 @@ class _LoginSignupState extends State<LoginSignup> {
         ),
       );
     } else {
+      // Check verification status for NutriChef
+      if (expectedRole == 'NutriChef') {
+        final verificationStatus = data?['verificationStatus'] ?? 'pending';
+        if (verificationStatus != 'approved') {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (_) => DocumentVerification(),
+            ),
+          );
+          return;
+        }
+      }
+
       Navigator.of(context).pop();
-      // Navigator.pushReplacement(
-      //     context,
-      //     MaterialPageRoute(
-      //       builder: (_) => AuthChecker(),
-      //     ));
     }
+  }
+
+  void _handleLogoTap() {
+    final now = DateTime.now();
+    if (_lastTapTime != null &&
+        now.difference(_lastTapTime!) > Duration(seconds: 2)) {
+      _tapCount = 0;
+    }
+    _lastTapTime = now;
+    _tapCount++;
+
+    if (_tapCount >= 5) {
+      _tapCount = 0;
+      _showAdminAccessDialog();
+    }
+  }
+
+  void _showAdminAccessDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Admin Access'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Enter admin access code:'),
+            SizedBox(height: 16),
+            TextField(
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                hintText: 'Enter code',
+              ),
+              obscureText: true,
+              onSubmitted: (code) {
+                if (code == 'admin123') {
+                  // You should change this to a more secure code
+                  Navigator.pop(context);
+                  Navigator.pushNamed(context, '/admin/login');
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Invalid access code'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              },
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -292,7 +427,10 @@ class _LoginSignupState extends State<LoginSignup> {
       extendBodyBehindAppBar: true,
       // backgroundColor: const Color(0xFFFFF8E1),
       appBar: AppBar(
-        title: const Text('NutriNudge'),
+        title: GestureDetector(
+          onTap: _handleLogoTap,
+          child: Text('NutriNudge'),
+        ),
         backgroundColor: isDarkMode
             ? null // Use default dark theme color
             : primaryColor.withAlpha(120),
