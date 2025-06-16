@@ -3,6 +3,7 @@ import 'package:nutrition_app/screens/nutricarrier/profile.dart';
 import 'package:nutrition_app/screens/nutricarrier/orders.dart';
 import 'package:nutrition_app/screens/nutricarrier/rewards.dart';
 import 'package:nutrition_app/screens/nutricarrier/help.dart';
+import 'package:nutrition_app/screens/nutricarrier/home.dart';
 
 class NutriCarrierDashboard extends StatefulWidget {
   const NutriCarrierDashboard({super.key});
@@ -15,6 +16,7 @@ class _NutriCarrierDashboardState extends State<NutriCarrierDashboard> {
   int _currentIndex = 0;
 
   final List<Widget> _screens = const [
+    HomeScreen(),
     AssignedOrdersScreen(),
     RewardsScreen(),
     HelpScreen(),
@@ -85,6 +87,10 @@ class _NutriCarrierDashboardState extends State<NutriCarrierDashboard> {
               });
             },
             items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home),
+                label: 'Home',
+              ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.delivery_dining),
                 label: 'Orders',

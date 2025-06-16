@@ -2,13 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:nutrition_app/screens/nutrimate/meal_plan_viewer.dart';
 import 'package:nutrition_app/screens/nutrimate/order_screen.dart';
-import 'package:nutrition_app/screens/nutrimate/tracking_screen.dart';
-import 'package:nutrition_app/screens/nutrimate/yoga_screen.dart';
+// import 'package:nutrition_app/screens/nutrimate/tracking_screen.dart';
 import 'package:nutrition_app/screens/nutrimate/dashboard_screen.dart';
 import 'package:nutrition_app/screens/nutrimate/profile_screen.dart';
 import 'package:nutrition_app/screens/nutrimate/settings_screen.dart';
-import 'package:nutrition_app/screens/nutrimate/notifications_screen.dart';
-import 'package:nutrition_app/screens/nutrimate/streaks_screen.dart';
 import 'package:nutrition_app/screens/nutrimate/help_support_screen.dart';
 import 'package:nutrition_app/widgets/auth_checker.dart';
 
@@ -45,7 +42,7 @@ class _MainNavigationState extends State<MainNavigation>
   final List<Widget> _screens = [
     DashboardScreen(),
     MealPlanViewer(),
-    TrackingScreen(),
+    OrderScreen(),
     ProfileScreen(),
   ];
 

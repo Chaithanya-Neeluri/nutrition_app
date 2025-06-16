@@ -162,7 +162,8 @@ class MyApp extends StatelessWidget {
         theme: lightTheme,
         darkTheme: darkTheme,
         themeMode: ThemeMode.system,
-        home: AuthChecker(),
+        home: //NutriChefDashboard(),
+            AuthChecker(),
         debugShowCheckedModeBanner: false,
         routes: {
           '/admin/login': (context) => AdminLogin(),
